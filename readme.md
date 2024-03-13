@@ -15,12 +15,14 @@ Inland Ports by Drone Images".
 ### Test
 To test the East detector eval.py has to be run. The provided command shows an example usage. It is important to note, that the model consits of 4 files. One data, one meta and one index file with a preceding name like "model.ckpt-50502". The checkpoint file has to be adjusted depending on the desired model for testing. With said model name the checkpoint file would need to hold following contents: 
 
-model_checkpoint_path: "model.ckpt-50502"
+model_checkpoint_path: "model.ckpt-50502" \\
 all_model_checkpoint_paths: "model.ckpt-50502"
 
 This adjustment is a necessity for running the python script successfully.The example training command is following: 
 
+```
 python eval.py --output_dir=./outputs/INSERT_OUTPUT_DIR --checkpoint_path=./models/INSERT_DIR_OF_MODEL --test_data_path=./test_samples/INSERT_TESTDATA_DIR
+```
 
 An image with detected boudning boxes as well as a text file holding the coordinates and confidences of those are written to the output directory.
 
