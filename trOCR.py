@@ -105,8 +105,8 @@ def get_boxes(path):
 #trOCR usage
 def predict_ids(image):
 
-    processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
-    model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
+    processor = TrOCRProcessor.from_pretrained('microsoft/trocr-large-printed')
+    model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-large-printed')
     pixel_values = processor(images=image, return_tensors="pt").pixel_values
 
     generated_ids = model.generate(pixel_values)
