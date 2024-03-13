@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 import locality_aware_nms as nms_locality
-import lanms
+#import lanms
 
 import model
 from icdar import restore_rectangle
@@ -91,8 +91,8 @@ def detect(score_map, geo_map, timer, score_map_thresh=0.8, box_thresh=0.1, nms_
     timer['restore'] = time.time() - start
     # nms part
     start = time.time()
-    # boxes = nms_locality.nms_locality(boxes.astype(np.float64), nms_thresh)
-    boxes = lanms.merge_quadrangle_n9(boxes.astype('float32'), nms_thresh)
+    boxes = nms_locality.nms_locality(boxes.astype(np.float64), nms_thresh)
+    #boxes = lanms.merge_quadrangle_n9(boxes.astype('float32'), nms_thresh)
     timer['nms'] = time.time() - start
 
     if boxes.shape[0] == 0:
@@ -104,6 +104,7 @@ def detect(score_map, geo_map, timer, score_map_thresh=0.8, box_thresh=0.1, nms_
         cv2.fillPoly(mask, box[:8].reshape((-1, 4, 2)).astype(np.int32) // 4, 1)
         boxes[i, 8] = cv2.mean(score_map, mask)[0]
     boxes = boxes[boxes[:, 8] > box_thresh]
+    #print("boxes:", boxes)
 
     return boxes, timer
 
@@ -157,8 +158,11 @@ def main(argv=None):
                 boxes, timer = detect(score_map=score, geo_map=geometry, timer=timer)
                 print('{} : net {:.0f}ms, restore {:.0f}ms, nms {:.0f}ms'.format(
                     im_fn, timer['net']*1000, timer['restore']*1000, timer['nms']*1000))
+                
 
+                
                 if boxes is not None:
+                    scores = boxes[:, 8]
                     boxes = boxes[:, :8].reshape((-1, 4, 2))
                     boxes[:, :, 0] /= ratio_w
                     boxes[:, :, 1] /= ratio_h
@@ -174,15 +178,17 @@ def main(argv=None):
                             os.path.basename(im_fn).split('.')[0]))
 
                     with open(res_file, 'w') as f:
-                        for box in boxes:
+                        for box, score in zip(boxes, scores):
                             # to avoid submitting errors
                             box = sort_poly(box.astype(np.int32))
                             if np.linalg.norm(box[0] - box[1]) < 5 or np.linalg.norm(box[3]-box[0]) < 5:
                                 continue
-                            f.write('{},{},{},{},{},{},{},{}\r\n'.format(
-                                box[0, 0], box[0, 1], box[1, 0], box[1, 1], box[2, 0], box[2, 1], box[3, 0], box[3, 1],
+                            #include confidenc into output
+                            f.write('{},{},{},{},{},{},{},{},{}\r\n'.format(
+                                box[0, 0], box[0, 1], box[1, 0], box[1, 1], box[2, 0], box[2, 1], box[3, 0], box[3, 1], score
                             ))
-                            cv2.polylines(im[:, :, ::-1], [box.astype(np.int32).reshape((-1, 1, 2))], True, color=(255, 255, 0), thickness=1)
+                            #change to a more visible bounding box configuartion
+                            cv2.polylines(im[:, :, ::-1], [box.astype(np.int32).reshape((-1, 1, 2))], True, color=(191, 25, 161), thickness=6)
                 if not FLAGS.no_write_images:
                     img_path = os.path.join(FLAGS.output_dir, os.path.basename(im_fn))
                     cv2.imwrite(img_path, im[:, :, ::-1])
