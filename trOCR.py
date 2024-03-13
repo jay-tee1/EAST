@@ -6,7 +6,7 @@ import json
 import numpy as np
 import os
 
-
+#define image the OCR should be performed on with setting IMAGE_PATH accordingly
 IMAGE_PATH = './DJI_0244_7257.jpeg'
 TXT_FILE = os.path.splitext(IMAGE_PATH)[0] + '.txt'
 
