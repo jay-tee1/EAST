@@ -66,7 +66,7 @@ def polygon_area(poly):
     return np.sum(edge)/2.
 
 
-def check_and_validate_polys(polys, tags, xxx_todo_changeme):
+def check_and_validate_polys(polys, tags, xxx_todo_changeme, file_name):
     '''
     check so that the text poly is in the same direction,
     and also filter some invalid polygons
@@ -86,10 +86,10 @@ def check_and_validate_polys(polys, tags, xxx_todo_changeme):
         p_area = polygon_area(poly)
         if abs(p_area) < 1:
             # print poly
-            print('invalid poly')
+            #print('invalid poly')
             continue
         if p_area > 0:
-            print('poly in wrong direction')
+            #print('poly in wrong direction', file_name, poly)
             poly = poly[(0, 3, 2, 1), :]
         validated_polys.append(poly)
         validated_tags.append(tag)
@@ -592,7 +592,7 @@ def generator(input_size=512, batch_size=32,
 
                 text_polys, text_tags = load_annoataion(txt_fn)
 
-                text_polys, text_tags = check_and_validate_polys(text_polys, text_tags, (h, w))
+                text_polys, text_tags = check_and_validate_polys(text_polys, text_tags, (h, w), im_fn)
                 # if text_polys.shape[0] == 0:
                 #     continue
                 # random scale this image
